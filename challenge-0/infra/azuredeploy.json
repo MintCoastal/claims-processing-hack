@@ -18,7 +18,16 @@
       "metadata": {
         "description": "Azure location where resources should be deployed (e.g., swedencentral)"
       }
-    }
+    "searchServiceSku": {
+      "type": "string",
+      "defaultValue": "basic",
+      "allowedValues": [
+        "basic",
+        "standard"
+      ],
+      "metadata": {
+        "description": "SKU for the Azure AI Search service"
+      }
   },
   "variables": {
     "prefix": "msagthack",
