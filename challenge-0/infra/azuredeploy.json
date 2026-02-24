@@ -11,20 +11,12 @@
   "parameters": {
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "metadata": {
-        "description": "Azure location where resources should be deployed (defaults to resource group location)"
-      }
-    },
-    "searchServiceSku": {
-      "type": "string",
-      "defaultValue": "basic",
+      "defaultValue": "swedencentral",
       "allowedValues": [
-        "basic",
-        "standard"
+        "swedencentral"
       ],
       "metadata": {
-        "description": "SKU for the Azure AI Search service"
+        "description": "Azure location where resources should be deployed (e.g., swedencentral)"
       }
     }
   },
@@ -70,7 +62,7 @@
     },
     {
       "type": "Microsoft.OperationalInsights/workspaces",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2021-06-01",
       "name": "[variables('logAnalyticsWorkspaceName')]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
@@ -86,7 +78,7 @@
     },
     {
       "type": "Microsoft.DocumentDB/databaseAccounts",
-      "apiVersion": "2024-05-15",
+      "apiVersion": "2023-04-15",
       "name": "[variables('cosmosDbAccountName')]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
@@ -117,7 +109,7 @@
     },
     {
       "type": "Microsoft.Search/searchServices",
-      "apiVersion": "2024-06-01-preview",
+      "apiVersion": "2023-11-01",
       "name": "[variables('searchServiceName')]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
@@ -132,7 +124,7 @@
     },
     {
       "type": "Microsoft.ContainerRegistry/registries",
-      "apiVersion": "2023-11-01-preview",
+      "apiVersion": "2023-07-01",
       "name": "[variables('containerRegistryName')]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
@@ -160,7 +152,7 @@
     },
     {
       "type": "Microsoft.App/managedEnvironments",
-      "apiVersion": "2024-03-01",
+      "apiVersion": "2023-05-01",
       "name": "[variables('containerAppEnvironmentName')]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
@@ -168,8 +160,8 @@
         "appLogsConfiguration": {
           "destination": "log-analytics",
           "logAnalyticsConfiguration": {
-            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2023-09-01').customerId]",
-            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2023-09-01').primarySharedKey]"
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2021-06-01').customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2021-06-01').primarySharedKey]"
           }
         }
       },
@@ -179,7 +171,7 @@
     },
     {
       "type": "Microsoft.ApiManagement/service",
-      "apiVersion": "2023-09-01-preview",
+      "apiVersion": "2023-05-01-preview",
       "name": "[variables('apiManagementName')]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
@@ -213,7 +205,7 @@
     },
     {
       "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "2024-04-01-preview",
+      "apiVersion": "2023-07-01",
       "name": "[variables('keyVaultName')]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
@@ -234,7 +226,7 @@
     },
     {
       "type": "Microsoft.CognitiveServices/accounts",
-      "apiVersion": "2024-10-01",
+      "apiVersion": "2025-04-01-preview",
       "name": "[variables('aiFoundryName')]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
@@ -254,7 +246,7 @@
     },
     {
       "type": "Microsoft.CognitiveServices/accounts/projects",
-      "apiVersion": "2024-10-01",
+      "apiVersion": "2025-04-01-preview",
       "name": "[format('{0}/{1}', variables('aiFoundryName'), variables('aiProjectName'))]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
@@ -301,11 +293,12 @@
       "dependsOn": [
         "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiFoundryName'))]",
         "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('aiFoundryName'), 'gpt-4.1-mini')]"
+
       ]
     },
     {
       "type": "Microsoft.CognitiveServices/accounts/deployments",
-      "apiVersion": "2024-10-01",
+      "apiVersion": "2025-07-01-preview",
       "name": "[format('{0}/{1}', variables('aiFoundryName'), 'mistral-document-ai-2505')]",
       "sku": {
         "name": "GlobalStandard",
@@ -333,7 +326,7 @@
       "scope": "[format('Microsoft.CognitiveServices/accounts/{0}', variables('aiFoundryName'))]",
       "properties": {
         "roleDefinitionId": "[variables('cognitiveServicesUserRoleId')]",
-        "principalId": "[reference(resourceId('Microsoft.CognitiveServices/accounts/projects', variables('aiFoundryName'), variables('aiProjectName')), '2024-10-01', 'full').identity.principalId]",
+        "principalId": "[reference(resourceId('Microsoft.CognitiveServices/accounts/projects', variables('aiFoundryName'), variables('aiProjectName')), '2025-04-01-preview', 'full').identity.principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
@@ -348,7 +341,7 @@
       "scope": "[format('Microsoft.Search/searchServices/{0}', variables('searchServiceName'))]",
       "properties": {
         "roleDefinitionId": "[variables('searchServiceContributorRoleId')]",
-        "principalId": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('aiFoundryName')), '2024-10-01', 'full').identity.principalId]",
+        "principalId": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('aiFoundryName')), '2025-04-01-preview', 'full').identity.principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
@@ -363,7 +356,7 @@
       "scope": "[format('Microsoft.Search/searchServices/{0}', variables('searchServiceName'))]",
       "properties": {
         "roleDefinitionId": "[variables('searchServiceContributorRoleId')]",
-        "principalId": "[reference(resourceId('Microsoft.CognitiveServices/accounts/projects', variables('aiFoundryName'), variables('aiProjectName')), '2024-10-01', 'full').identity.principalId]",
+        "principalId": "[reference(resourceId('Microsoft.CognitiveServices/accounts/projects', variables('aiFoundryName'), variables('aiProjectName')), '2025-04-01-preview', 'full').identity.principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
@@ -373,7 +366,7 @@
     },
     {
       "type": "Microsoft.CognitiveServices/accounts/connections",
-      "apiVersion": "2024-10-01",
+      "apiVersion": "2025-04-01-preview",
       "name": "[format('{0}/{1}-aisearch', variables('aiFoundryName'), variables('aiFoundryName'))]",
       "properties": {
         "category": "CognitiveSearch",
@@ -414,7 +407,7 @@
     },
     "aiFoundryProjectName": {
       "type": "string",
-      "value": "[variables('aiProjectName')]"
+      "value": "[variables('aiProjectName')]" 
     },
     "keyVaultName": {
       "type": "string",
@@ -441,12 +434,12 @@
       "value": "[format('https://ai.azure.com/build/overview?wsid={0}', resourceId('Microsoft.CognitiveServices/accounts/projects', variables('aiFoundryName'), variables('aiProjectName')))]"
     },
     "cosmosDbAccountName": {
-      "type": "string",
+  "type": "string",
       "value": "[variables('cosmosDbAccountName')]"
     },
     "cosmosDbEndpoint": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbAccountName')), '2024-05-15').documentEndpoint]"
+      "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbAccountName')), '2023-04-15').documentEndpoint]"
     },
     "documentIntelligenceName": {
       "type": "string",
@@ -470,7 +463,7 @@
     },
     "apiManagementGatewayUrl": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.ApiManagement/service', variables('apiManagementName')), '2023-09-01-preview').gatewayUrl]"
+      "value": "[reference(resourceId('Microsoft.ApiManagement/service', variables('apiManagementName')), '2023-05-01-preview').gatewayUrl]"
     }
   }
 }
